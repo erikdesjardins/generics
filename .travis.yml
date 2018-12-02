@@ -1,0 +1,15 @@
+language: rust
+rust: stable
+branches:
+  only:
+    - master
+    - /^v[0-9]/
+cache:
+  cargo: true
+before_script:
+  - rustup component add rustfmt-preview
+  - rustup component add clippy-preview
+script:
+  - cargo fmt --all -- --check
+  - RUSTFLAGS="-D warnings" cargo clippy
+  - cargo test
