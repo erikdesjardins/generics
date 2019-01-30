@@ -9,5 +9,14 @@ documentation = "https://docs.rs/generics"
 readme = "./README.md"
 categories = ["data-structures"]
 keywords = ["datatype", "generics", "datatype-generic"]
+edition = "2018"
+
+[workspace]
+members = [".", "generics_derive"]
+
+[features]
+default = ["derive"]
+derive = ["generics_derive"]
 
 [dependencies]
+generics_derive = { optional = true, path = "./generics_derive" }

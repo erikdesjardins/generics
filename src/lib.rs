@@ -10,11 +10,14 @@
 //!
 //! [1]: https://wiki.haskell.org/GHC.Generics
 //! [2]: http://dreixel.net/research/pdf/gdmh.pdf
-//! [specialization]: https://github.com/rust-lang/rust/issues/31844
 
 #![warn(missing_docs)]
 
 use std::marker::PhantomData;
+
+#[cfg(feature = "generics_derive")]
+#[doc(hidden)]
+pub use generics_derive::Generic;
 
 /// A bidirectional conversion between a type and its `Repr`.
 ///
@@ -24,7 +27,7 @@ use std::marker::PhantomData;
 ///
 /// Accumulate the sum of all fields. For simplicity, only supports `u64`.
 ///
-/// ```rust,compile_fail
+/// ```rust
 /// use generics::{Generic, Meta, Prod, Singleton};
 ///
 /// trait Accumulate {
@@ -51,8 +54,8 @@ use std::marker::PhantomData;
 ///     }
 /// }
 ///
-/// fn accumulate<T>(x: T) where T: Generic, T::Repr: Accumulate {
-///     Generic::into(x).sum()
+/// fn accumulate<T>(x: T) -> u64 where T: Generic, T::Repr: Accumulate {
+///     Generic::into(x).acc()
 /// }
 ///
 /// #[derive(Generic)]
@@ -203,6 +206,7 @@ pub enum Sum<L, R> {
 /// This should not be written by hand; use `#[derive(Generic)]` instead.
 ///
 /// ```rust
+/// # use std::marker::PhantomData;
 /// use generics::{Generic, Meta, Singleton, Unit};
 ///
 /// struct Foo;
@@ -210,7 +214,7 @@ pub enum Sum<L, R> {
 /// impl Generic for Foo {
 ///     type Repr = Meta<Unit, Foo_Name>;
 ///     fn into(self) -> Self::Repr {
-///         Meta(Unit, Foo_Name)
+///         Meta(Unit, PhantomData)
 ///     }
 ///     fn from(repr: Self::Repr) -> Self {
 ///         let Meta(Unit, _) = repr;
