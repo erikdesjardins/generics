@@ -29,7 +29,7 @@ pub fn generic_macro_derive(input: TokenStream) -> TokenStream {
                 .iter()
                 .fold(quote! { ::generics::Unit }, |acc, field| {
                     let field_ty = &field.ty;
-                    quote! { ::generics::Prod<#acc, #field_ty> }
+                    quote! { ::generics::Prod<#acc, <#field_ty as ::generics::Generic>::Repr> }
                 });
             let ref self_fields = fields
                 .iter()
@@ -53,13 +53,21 @@ pub fn generic_macro_derive(input: TokenStream) -> TokenStream {
                     .fold(quote! { ::generics::Unit }, |acc, ordinal| {
                         quote! { ::generics::Prod(#acc, #ordinal) }
                     });
+            let into_conversions = ordinals.iter().map(|ordinal| {
+                quote! { let #ordinal = ::generics::Generic::into_repr(#ordinal); }
+            });
+            let from_conversions = ordinals.iter().map(|ordinal| {
+                quote! { let #ordinal = ::generics::Generic::from_repr(#ordinal); }
+            });
             ty = type_;
             into = quote! {
                 let Self { #(#self_fields : #ordinals),* } = self;
+                #( #into_conversions )*
                 #repr_structure
             };
             from = quote! {
                 let #repr_structure = repr;
+                #( #from_conversions )*
                 Self { #(#self_fields : #ordinals),* }
             };
         }
