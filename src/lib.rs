@@ -6,7 +6,7 @@
 //! representing their basic structure.
 //!
 //! Useful operations can be implemented inductively on those simpler types,
-//! eliminating the need to write boilerplate for each individual type.
+//! without the need to write boilerplate for each individual type.
 //!
 //! [1]: https://wiki.haskell.org/GHC.Generics
 //! [2]: http://dreixel.net/research/pdf/gdmh.pdf
