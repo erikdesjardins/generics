@@ -29,13 +29,14 @@ pub fn generic_macro_derive(input: TokenStream) -> TokenStream {
     let gen = quote! {
         impl #impl_generics Generic for #name #ty_generics #where_clause {
             type Repr = ();
-            fn into(self: Self) -> Self::Repr {
+            fn into_repr(self: Self) -> Self::Repr {
                 unimplemented!();
             }
-            fn from(repr: Self::Repr) -> Self {
+            fn from_repr(repr: Self::Repr) -> Self {
                 unimplemented!();
             }
         }
     };
-    gen.into()
+
+    TokenStream::from(gen)
 }

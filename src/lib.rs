@@ -55,7 +55,7 @@ pub use generics_derive::Generic;
 /// }
 ///
 /// fn accumulate<T>(x: T) -> u64 where T: Generic, T::Repr: Accumulate {
-///     Generic::into(x).acc()
+///     x.into_repr().acc()
 /// }
 ///
 /// #[derive(Generic)]
@@ -80,10 +80,10 @@ pub trait Generic {
     type Repr;
 
     /// Converts `Self` into its generic representation.
-    fn into(self: Self) -> Self::Repr;
+    fn into_repr(self: Self) -> Self::Repr;
 
     /// Constructs `Self` from its generic representation.
-    fn from(repr: Self::Repr) -> Self;
+    fn from_repr(repr: Self::Repr) -> Self;
 }
 
 /// Represents a unit type.
@@ -103,10 +103,10 @@ pub trait Generic {
 ///
 /// impl Generic for Foo {
 ///     type Repr = Unit;
-///     fn into(self) -> Self::Repr {
+///     fn into_repr(self) -> Self::Repr {
 ///         Unit
 ///     }
-///     fn from(repr: Self::Repr) -> Self {
+///     fn from_repr(repr: Self::Repr) -> Self {
 ///         let Unit = repr;
 ///         Foo
 ///     }
@@ -136,10 +136,10 @@ pub struct Unit;
 ///
 /// impl Generic for Three {
 ///     type Repr = Prod<u8, Prod<u16, u32>>;
-///     fn into(self) -> Self::Repr {
+///     fn into_repr(self) -> Self::Repr {
 ///         Prod(self.one, Prod(self.two, self.three))
 ///     }
-///     fn from(repr: Self::Repr) -> Self {
+///     fn from_repr(repr: Self::Repr) -> Self {
 ///         let Prod(one, Prod(two, three)) = repr;
 ///         Three { one, two, three }
 ///     }
@@ -169,14 +169,14 @@ pub struct Prod<A, B>(pub A, pub B);
 ///
 /// impl Generic for Three {
 ///     type Repr = Sum<u8, Sum<u16, u32>>;
-///     fn into(self) -> Self::Repr {
+///     fn into_repr(self) -> Self::Repr {
 ///         match self {
 ///             Three::One(one) => Sum::Left(one),
 ///             Three::Two(two) => Sum::Right(Sum::Left(two)),
 ///             Three::Three(three) => Sum::Right(Sum::Right(three)),
 ///         }
 ///     }
-///     fn from(repr: Self::Repr) -> Self {
+///     fn from_repr(repr: Self::Repr) -> Self {
 ///         match repr {
 ///             Sum::Left(one) => Three::One(one),
 ///             Sum::Right(Sum::Left(two)) => Three::Two(two),
@@ -213,10 +213,10 @@ pub enum Sum<L, R> {
 ///
 /// impl Generic for Foo {
 ///     type Repr = Meta<Unit, Foo_Name>;
-///     fn into(self) -> Self::Repr {
+///     fn into_repr(self) -> Self::Repr {
 ///         Meta(Unit, PhantomData)
 ///     }
-///     fn from(repr: Self::Repr) -> Self {
+///     fn from_repr(repr: Self::Repr) -> Self {
 ///         let Meta(Unit, _) = repr;
 ///         Foo
 ///     }
