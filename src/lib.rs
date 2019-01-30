@@ -14,6 +14,8 @@
 
 #![warn(missing_docs)]
 
+use std::marker::PhantomData;
+
 /// A bidirectional conversion between a type and its `Repr`.
 ///
 /// This trait should not be implemented by hand; use `#[derive(Generic)]` instead.
@@ -192,8 +194,7 @@ pub enum Sum<L, R> {
 /// That is, constructor names, field names, etc.
 ///
 /// Metadata added by the `Generic` custom derive is represented as a zero-sized `Singleton`,
-/// so it adds no runtime overhead. Metadata added by manual implementations of `Generic` may
-/// have non-zero size, but this is discouraged.
+/// so it adds no runtime overhead.
 ///
 /// # Examples
 ///
@@ -244,7 +245,7 @@ pub enum Sum<L, R> {
 ///     }
 /// }
 /// ```
-pub struct Meta<I, M>(pub I, pub M)
+pub struct Meta<I, M>(pub I, pub PhantomData<M>)
 where
     M: Singleton;
 
