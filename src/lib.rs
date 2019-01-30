@@ -19,6 +19,8 @@ use std::marker::PhantomData;
 #[doc(hidden)]
 pub use generics_derive::Generic;
 
+mod prim;
+
 /// A bidirectional conversion between a type and its `Repr`.
 ///
 /// This trait should not be implemented by hand; use `#[derive(Generic)]` instead.
