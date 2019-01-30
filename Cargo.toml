@@ -8,7 +8,7 @@ repository = "https://github.com/erikdesjardins/generics"
 documentation = "https://docs.rs/generics"
 readme = "./README.md"
 categories = ["data-structures"]
-keywords = ["datatype", "generics", "datatype-generic"]
+keywords = ["datatype", "generics", "datatype-generic", "derive"]
 edition = "2018"
 
 [workspace]
