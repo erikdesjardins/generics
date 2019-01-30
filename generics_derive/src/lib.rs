@@ -19,9 +19,12 @@ pub fn generic_macro_derive(input: TokenStream) -> TokenStream {
 
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
+    let ty;
+    let into;
+    let from;
     let imp = match data {
         Data::Struct(DataStruct { fields, .. }) => {
-            let ty = fields
+            let type_ = fields
                 .iter()
                 .fold(quote! { ::generics::Unit }, |acc, field| {
                     let field_ty = &field.ty;
@@ -48,17 +51,15 @@ pub fn generic_macro_derive(input: TokenStream) -> TokenStream {
                     .fold(quote! { ::generics::Unit }, |acc, ordinal| {
                         quote! { ::generics::Prod(#acc, #ordinal) }
                     });
-            quote! {
-                type Repr = #ty;
-                fn into_repr(self: Self) -> Self::Repr {
-                    let Self { #(#self_fields : #ordinals),* } = self;
-                    #repr_structure
-                }
-                fn from_repr(repr: Self::Repr) -> Self {
-                    let #repr_structure = repr;
-                    Self { #(#self_fields : #ordinals ,)* }
-                }
-            }
+            ty = type_;
+            into = quote! {
+                let Self { #(#self_fields : #ordinals),* } = self;
+                #repr_structure
+            };
+            from = quote! {
+                let #repr_structure = repr;
+                Self { #(#self_fields : #ordinals),* }
+            };
         }
         Data::Enum(DataEnum { variants, .. }) => {
             unimplemented!();
@@ -68,7 +69,13 @@ pub fn generic_macro_derive(input: TokenStream) -> TokenStream {
 
     TokenStream::from(quote! {
         impl #impl_generics Generic for #name #ty_generics #where_clause {
-            #imp
+            type Repr = #ty;
+            fn into_repr(self: Self) -> Self::Repr {
+                #into
+            }
+            fn from_repr(repr: Self::Repr) -> Self {
+                #from
+            }
         }
     })
 }
