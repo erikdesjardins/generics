@@ -5,6 +5,7 @@ use proc_macro2::Span;
 use quote::quote;
 use syn::{
     Data, DataEnum, DataStruct, DeriveInput, Field, Fields, FieldsNamed, FieldsUnnamed, Ident,
+    IntSuffix, LitInt,
 };
 
 #[proc_macro_derive(Generic)]
@@ -33,11 +34,12 @@ pub fn generic_macro_derive(input: TokenStream) -> TokenStream {
             let ref self_fields = fields
                 .iter()
                 .enumerate()
-                .map(|(i, field)| {
-                    field
-                        .ident
-                        .clone()
-                        .unwrap_or_else(|| Ident::new(&i.to_string(), Span::call_site()))
+                .map(|(i, field)| match &field.ident {
+                    Some(ident) => quote! { #ident },
+                    None => {
+                        let lit = LitInt::new(i as u64, IntSuffix::None, Span::call_site());
+                        quote! { #lit }
+                    }
                 })
                 .collect::<Vec<_>>();
             let ref ordinals = fields
