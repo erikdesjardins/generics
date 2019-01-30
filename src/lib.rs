@@ -28,7 +28,7 @@ pub use generics_derive::Generic;
 /// Accumulate the sum of all fields. For simplicity, only supports `u64`.
 ///
 /// ```rust
-/// use generics::{Generic, Meta, Prod, Singleton};
+/// use generics::{Generic, Meta, Prod, Singleton, Unit};
 ///
 /// trait Accumulate {
 ///     fn acc(self) -> u64;
@@ -37,6 +37,12 @@ pub use generics_derive::Generic;
 /// impl Accumulate for u64 {
 ///     fn acc(self) -> u64 {
 ///         self
+///     }
+/// }
+///
+/// impl Accumulate for Unit {
+///     fn acc(self) -> u64 {
+///         0
 ///     }
 /// }
 ///
