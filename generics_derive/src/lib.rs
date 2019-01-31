@@ -5,7 +5,7 @@ use proc_macro2::Span;
 use quote::quote;
 use syn::{
     Data, DataEnum, DataStruct, DeriveInput, Field, Fields, FieldsNamed, FieldsUnnamed, Ident,
-    IntSuffix, LitInt,
+    IntSuffix, LitInt, WhereClause,
 };
 
 #[proc_macro_derive(Generic)]
@@ -21,16 +21,24 @@ pub fn generic_macro_derive(input: TokenStream) -> TokenStream {
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
     let ty;
+    let ty_predicates;
     let into;
     let from;
     let imp = match data {
         Data::Struct(DataStruct { fields, .. }) => {
-            let type_ = fields
+            ty = fields
                 .iter()
                 .fold(quote! { ::generics::Unit }, |acc, field| {
                     let field_ty = &field.ty;
                     quote! { ::generics::Prod<#acc, <#field_ty as ::generics::Generic>::Repr> }
                 });
+            ty_predicates = fields
+                .iter()
+                .map(|field| {
+                    let field_ty = &field.ty;
+                    quote! { #field_ty : ::generics::Generic }
+                })
+                .collect::<Vec<_>>();
             let ref self_fields = fields
                 .iter()
                 .enumerate()
@@ -59,7 +67,6 @@ pub fn generic_macro_derive(input: TokenStream) -> TokenStream {
             let from_conversions = ordinals.iter().map(|ordinal| {
                 quote! { let #ordinal = ::generics::Generic::from_repr(#ordinal); }
             });
-            ty = type_;
             into = quote! {
                 let Self { #(#self_fields : #ordinals),* } = self;
                 #( #into_conversions )*
@@ -77,8 +84,24 @@ pub fn generic_macro_derive(input: TokenStream) -> TokenStream {
         Data::Union(_) => panic!("`Generic` cannot be derived for unions"),
     };
 
+    let combined_where_clause = match where_clause {
+        Some(WhereClause {
+            where_token: _,
+            predicates,
+        }) => {
+            quote! {
+                where #(#ty_predicates ,)* #predicates
+            }
+        }
+        None => {
+            quote! {
+                where #(#ty_predicates ,)*
+            }
+        }
+    };
+
     TokenStream::from(quote! {
-        impl #impl_generics Generic for #name #ty_generics #where_clause {
+        impl #impl_generics Generic for #name #ty_generics #combined_where_clause {
             type Repr = #ty;
             fn into_repr(self: Self) -> Self::Repr {
                 #into
