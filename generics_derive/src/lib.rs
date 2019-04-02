@@ -24,7 +24,7 @@ pub fn generic_macro_derive(input: TokenStream) -> TokenStream {
     let ty_predicates;
     let into;
     let from;
-    let imp = match data {
+    match data {
         Data::Struct(DataStruct { fields, .. }) => {
             ty = fields
                 .iter()
