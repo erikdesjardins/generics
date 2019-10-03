@@ -3,10 +3,7 @@ extern crate proc_macro;
 use proc_macro::TokenStream;
 use proc_macro2::Span;
 use quote::quote;
-use syn::{
-    Data, DataEnum, DataStruct, DeriveInput, Field, Fields, FieldsNamed, FieldsUnnamed, Ident,
-    IntSuffix, LitInt, WhereClause,
-};
+use syn::{Data, DataEnum, DataStruct, DeriveInput, Ident, IntSuffix, LitInt, WhereClause};
 
 #[proc_macro_derive(Generic)]
 pub fn generic_macro_derive(input: TokenStream) -> TokenStream {
